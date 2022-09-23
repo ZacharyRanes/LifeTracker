@@ -26,7 +26,12 @@ int life[4];
 // check if player is in the game
 bool in_game[4];
 
+// 2d array of command damage each player has taken
+// four players can each take commander damage from three sources
 int commander_damage[4][3];
+
+// var used for selection on commander damage menu
+int commander_damage_source;
 
 // what mode tracker
 int current_mode = 1;
@@ -112,6 +117,7 @@ void print_player_life(int player)
 
 void print_commander_damage()
 {
+      // TODO: Write code to print commander damage
 }
 
 // print the * for which player is selected with the cycle
@@ -148,21 +154,23 @@ void print_select(int select)
   }
 }
 
-void update_select(bool available[4])
+int update_select(bool available[4], int selected)
 {
-  selected_player += 1;
-  while (!available[selected_player - 1])
+  selected += 1;
+  while (!available[selected - 1])
   {
-    selected_player += 1;
-    if (selected_player >= 5)
+    selected += 1;
+    if (selected >= 5)
     {
-      selected_player = 1;
+      selected = 1;
     }
   }
-  if (selected_player >= 5)
+  if (selected >= 5)
   {
-    selected_player = 1;
+    selected = 1;
   }
+
+  return selected;
 }
 
 void life_menu()
@@ -171,7 +179,7 @@ void life_menu()
 
   if (digitalRead(cycle) == LOW && !cycle_pressed)
   {
-    update_select(in_game);
+    selected_player = update_select(in_game, selected_player);
     cycle_pressed = true;
   }
   if (digitalRead(cycle) == HIGH)
@@ -195,7 +203,7 @@ void life_menu()
     if (life[selected_player - 1] <= 0)
     {
       in_game[selected_player - 1] = false;
-      update_select(in_game);
+      selected_player = update_select(in_game, selected_player);
     }
     lifeDown_pressed = true;
   }
@@ -208,6 +216,36 @@ void life_menu()
 void commander_menu()
 {
   print_commander_damage();
+
+  if (digitalRead(cycle) == LOW && !cycle_pressed)
+  {
+    // TODO: Write logic for commander damage select
+    cycle_pressed = true;
+  }
+  if (digitalRead(cycle) == HIGH)
+  {
+    cycle_pressed = false;
+  }
+
+  if (digitalRead(lifeUp) == LOW && !lifeUp_pressed)
+  {
+    // TODO: Write logic for commander damage taken
+    lifeUp_pressed = true;
+  }
+  if (digitalRead(lifeUp) == HIGH)
+  {
+    lifeUp_pressed = false;
+  }
+
+  if (digitalRead(lifeDown) == LOW && !lifeDown_pressed)
+  {
+    // TODO: Write logic for commander damage removed (for mistakes)
+    lifeDown_pressed = true;
+  }
+  if (digitalRead(lifeDown) == HIGH)
+  {
+    lifeDown_pressed = false;
+  }
 }
 
 // main
@@ -233,7 +271,7 @@ void loop()
   if (digitalRead(mode) == LOW && !mode_pressed)
   {
     current_mode += 1;
-    if (current_mode > 2)
+    if (current_mode > 2) // update this as more modes are added !!!!
     {
       current_mode = 1;
     }
