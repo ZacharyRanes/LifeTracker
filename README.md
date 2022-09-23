@@ -9,4 +9,4 @@ A simple project to using an Arduino Uno and a 16x2 LCD to make a MTG commander 
 
 ## Schematic
 
-![Schematic.jpg Missing](Schematic.jpg "Schematic")
+![Schematic.jpg Missing](Schematic.png "Schematic")
