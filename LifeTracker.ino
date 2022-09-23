@@ -26,6 +26,8 @@ int life[4];
 // check if player is in the game
 bool in_game[4];
 
+int commander_damage[4][3];
+
 // what mode tracker
 int current_mode = 1;
 
@@ -45,10 +47,19 @@ void setup()
   in_game[1] = true;
   in_game[2] = true;
   in_game[3] = true;
+  commander_damage[0][0] = 0;
+  commander_damage[0][1] = 0;
+  commander_damage[0][2] = 0;
+  commander_damage[1][0] = 0;
+  commander_damage[1][1] = 0;
+  commander_damage[1][2] = 0;
+  commander_damage[2][0] = 0;
+  commander_damage[2][1] = 0;
+  commander_damage[2][2] = 0;
+  commander_damage[3][0] = 0;
+  commander_damage[3][1] = 0;
+  commander_damage[3][2] = 0;
   current_mode = 1;
-  print_life();
-  print_select();
-
   pinMode(lifeUp, INPUT_PULLUP);
   pinMode(lifeDown, INPUT_PULLUP);
   pinMode(cycle, INPUT_PULLUP);
@@ -70,6 +81,7 @@ void print_life()
   print_player_life(2);
   print_player_life(3);
   print_player_life(4);
+  print_select(selected_player);
 }
 
 void print_player_life(int player)
@@ -98,32 +110,36 @@ void print_player_life(int player)
     lcd.print("K.O.");
 }
 
+void print_commander_damage()
+{
+}
+
 // print the * for which player is selected with the cycle
 //  have to print black space to clear the last printed *
-void print_select()
+void print_select(int select)
 {
-  if (selected_player == 1)
+  if (select == 1)
   {
     lcd.setCursor(7, 0);
     lcd.print("* ");
     lcd.setCursor(7, 1);
     lcd.print("  ");
   }
-  else if (selected_player == 2)
+  else if (select == 2)
   {
     lcd.setCursor(7, 0);
     lcd.print(" *");
     lcd.setCursor(7, 1);
     lcd.print("  ");
   }
-  else if (selected_player == 3)
+  else if (select == 3)
   {
     lcd.setCursor(7, 0);
     lcd.print("  ");
     lcd.setCursor(7, 1);
     lcd.print(" *");
   }
-  else if (selected_player == 4)
+  else if (select == 4)
   {
     lcd.setCursor(7, 0);
     lcd.print("  ");
@@ -132,10 +148,10 @@ void print_select()
   }
 }
 
-void update_select()
+void update_select(bool available[4])
 {
   selected_player += 1;
-  while (!in_game[selected_player - 1])
+  while (!available[selected_player - 1])
   {
     selected_player += 1;
     if (selected_player >= 5)
@@ -152,11 +168,10 @@ void update_select()
 void life_menu()
 {
   print_life();
-  print_select();
 
   if (digitalRead(cycle) == LOW && !cycle_pressed)
   {
-    update_select();
+    update_select(in_game);
     cycle_pressed = true;
   }
   if (digitalRead(cycle) == HIGH)
@@ -180,7 +195,7 @@ void life_menu()
     if (life[selected_player - 1] <= 0)
     {
       in_game[selected_player - 1] = false;
-      update_select();
+      update_select(in_game);
     }
     lifeDown_pressed = true;
   }
@@ -188,6 +203,11 @@ void life_menu()
   {
     lifeDown_pressed = false;
   }
+}
+
+void commander_menu()
+{
+  print_commander_damage();
 }
 
 // main
@@ -200,14 +220,23 @@ void loop()
     setup();
   }
 
-  if (current_mode == 1)
+  switch (current_mode)
   {
+  case 1:
     life_menu();
+    break;
+  case 2:
+    commander_menu();
+    break;
   }
 
   if (digitalRead(mode) == LOW && !mode_pressed)
   {
     current_mode += 1;
+    if (current_mode > 2)
+    {
+      current_mode = 1;
+    }
     mode_pressed = true;
   }
   if (digitalRead(mode) == HIGH)
